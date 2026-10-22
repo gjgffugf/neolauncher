@@ -1,0 +1,147 @@
+name: Build
+
+# 统一构建入口：一次触发可同时产出 Windows 端与 Android 端
+# 手动运行时可选择只构建其中一端；推送到 main 时默认两端都构建
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: '构建目标'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - both
+          - desktop
+          - android
+      android_variant:
+        description: 'Android 构建变体'
+        required: false
+        default: 'Debug'
+        type: choice
+        options:
+          - Debug
+          - Release
+  push:
+    branches: [main]
+    paths:
+      - 'desktop/**'
+      - 'android/**'
+      - '.github/workflows/build.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'desktop/**'
+      - 'android/**'
+
+jobs:
+  # ---------- 电脑端：Windows x64 ----------
+  desktop:
+    name: Windows x64
+    if: >
+      github.event_name != 'workflow_dispatch' ||
+      inputs.target == 'both' || inputs.target == 'desktop'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore desktop/PCLNeo.vbproj
+
+      - name: Build（先编译，便于快速定位错误）
+        run: dotnet build desktop/PCLNeo.vbproj -c Release --no-restore
+
+      - name: Publish
+        run: >
+          dotnet publish desktop/PCLNeo.vbproj
+          -c Release
+          -r win-x64
+          --self-contained false
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:DebugType=none
+          -o out/PCLNeo
+
+      - name: Pack
+        shell: pwsh
+        run: Compress-Archive -Path out/PCLNeo/* -DestinationPath PCLNeo-Windows-x64.zip
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: PCLNeo-Windows-x64
+          path: |
+            PCLNeo-Windows-x64.zip
+            out/PCLNeo/
+          if-no-files-found: error
+
+  # ---------- 手机端：Android APK ----------
+  android:
+    name: Android APK
+    if: >
+      github.event_name != 'workflow_dispatch' ||
+      inputs.target == 'both' || inputs.target == 'android'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept SDK licenses
+        run: yes | "$ANDROID_HOME"/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+
+      - name: Setup Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
+
+      - name: Build Debug
+        if: github.event_name != 'workflow_dispatch' || inputs.android_variant == 'Debug'
+        working-directory: android
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
+
+      # 注意：项目未配置签名，Release 产物为未签名 APK，
+      # 需本地签名后才能安装；日常使用选 Debug 即可
+      - name: Build Release
+        if: inputs.android_variant == 'Release'
+        working-directory: android
+        run: gradle :app:assembleRelease --no-daemon --stacktrace
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: PCLNeo-Android
+          path: android/app/build/outputs/apk/*/*.apk
+          if-no-files-found: error
+
+  # ---------- 汇总：在一条 Summary 里列出全部产出 ----------
+  summary:
+    name: Build Summary
+    needs: [desktop, android]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: 输出结果
+        run: |
+          echo "## PCL Neo 构建结果" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| 端 | 状态 |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Windows x64 | ${{ needs.desktop.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Android APK | ${{ needs.android.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "产物在页面底部 Artifacts 区域下载。" >> $GITHUB_STEP_SUMMARY

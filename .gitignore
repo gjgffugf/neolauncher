@@ -1,0 +1,17 @@
+# 构建产物
+bin/
+obj/
+out/
+build/
+*.user
+.vs/
+.gradle/
+.idea/
+local.properties
+
+# 发布包
+*.apk
+*.aab
+
+# 日志与运行数据
+*.log

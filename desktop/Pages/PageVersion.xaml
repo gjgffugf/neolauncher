@@ -1,0 +1,55 @@
+<Page x:Class="PCLNeo.PageVersion"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="Transparent" FontFamily="Microsoft YaHei UI">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="14">
+        <StackPanel>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="已安装版本" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <ListBox x:Name="ListLocal" Height="150"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button x:Name="BtnRefresh" Content="刷新"/>
+                        <Button x:Name="BtnDelete" Content="删除版本" Margin="8,0,0,0"/>
+                        <Button x:Name="BtnOpenDir" Content="打开版本目录" Margin="8,0,0,0"/>
+                        <Button x:Name="BtnOpenMods" Content="打开模组目录" Margin="8,0,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="安装模组加载器" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <StackPanel Orientation="Horizontal">
+                        <ComboBox x:Name="ComboLoaderKind" Width="130">
+                            <ComboBoxItem Content="Forge" IsSelected="True"/>
+                            <ComboBoxItem Content="NeoForge"/>
+                            <ComboBoxItem Content="Fabric"/>
+                            <ComboBoxItem Content="Quilt"/>
+                        </ComboBox>
+                        <Button x:Name="BtnLoadLoaderList" Content="获取版本列表" Margin="8,0,0,0"/>
+                        <ComboBox x:Name="ComboLoaderVersion" Width="220" Margin="8,0,0,0"/>
+                        <Button x:Name="BtnInstallLoader" Content="安装" Margin="8,0,0,0"/>
+                    </StackPanel>
+                    <TextBlock Text="Forge / NeoForge 需要本机已有 Java（会自动调用安装器）；Fabric / Quilt 直接写入版本 JSON，无需 Java。" 
+                               FontSize="11" Foreground="Gray" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="已安装模组" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <ListBox x:Name="ListMods" Height="200"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button x:Name="BtnRefreshMods" Content="刷新"/>
+                        <Button x:Name="BtnToggleMod" Content="启用 / 禁用" Margin="8,0,0,0"/>
+                        <Button x:Name="BtnDeleteMod" Content="删除" Margin="8,0,0,0"/>
+                        <Button x:Name="BtnAddMod" Content="下载更多…" Margin="8,0,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>
