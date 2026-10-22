@@ -141,20 +141,20 @@ Namespace PCLNeo
             If libs Is Nothing Then Exit Sub
             Dim total As Integer = libs.Count()
             Dim i = 0
-            For Each lib In libs
+            For Each library In libs
                 i += 1
-                If Not LibAllowed(lib) Then Continue For
-                Dim dl = lib("downloads")
+                If Not LibAllowed(library) Then Continue For
+                Dim dl = library("downloads")
                 Dim artifact = If(dl IsNot Nothing, dl("artifact"), Nothing)
                 If artifact IsNot Nothing Then
-                    Dim path = If(artifact("path")?.ToString(), MavenToPath(lib("name").ToString()))
+                    Dim path = If(artifact("path")?.ToString(), MavenToPath(library("name").ToString()))
                     Dim dest = Path.Combine(DirLibraries, path.Replace("/", "\"))
                     EventBus.RaiseProgress("安装版本", 0.1 + 0.6 * i / total, $"依赖库 {i}/{total}：{Path.GetFileName(path)}")
                     DownloadFile(artifact("url").ToString(), dest, If(artifact("sha1")?.ToString(), ""), "安装版本", Path.GetFileName(path))
                 End If
                 If dl Is Nothing Then Continue For
                 ' natives
-                Dim natives = lib("natives")
+                Dim natives = library("natives")
                 If natives IsNot Nothing AndAlso natives("windows") IsNot Nothing Then
                     Dim key = natives("windows").ToString().Replace("${arch}", If(IntPtr.Size = 8, "64", "32"))
                     Dim classifierObj = If(dl("classifiers"), Nothing)
@@ -174,8 +174,8 @@ Namespace PCLNeo
         End Sub
 
         ''' <summary>library 的 rules 判定（只保留适用于 Windows 的）</summary>
-        Public Function LibAllowed(lib As JToken) As Boolean
-            Dim rules = lib("rules")
+        Public Function LibAllowed(library As JToken) As Boolean
+            Dim rules = library("rules")
             If rules Is Nothing Then Return True
             Dim allow = False
             For Each r In rules

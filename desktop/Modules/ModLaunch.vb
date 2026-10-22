@@ -35,13 +35,13 @@ Namespace PCLNeo
             Dim sb As New StringBuilder()
             Dim libs = json("libraries")
             If libs IsNot Nothing Then
-                For Each lib In libs
-                    If Not LibAllowed(lib) Then Continue For
-                    Dim dl = lib("downloads")
+                For Each library In libs
+                    If Not LibAllowed(library) Then Continue For
+                    Dim dl = library("downloads")
                     If dl Is Nothing Then Continue For
                     Dim art = dl("artifact")
                     If art Is Nothing Then Continue For
-                    Dim rel = If(art("path")?.ToString(), MavenToPath(lib("name").ToString()))
+                    Dim rel = If(art("path")?.ToString(), MavenToPath(library("name").ToString()))
                     Dim full = Path.Combine(DirLibraries, rel.Replace("/", "\"))
                     If File.Exists(full) Then
                         If sb.Length > 0 Then sb.Append(";"c)

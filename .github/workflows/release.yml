@@ -36,7 +36,8 @@ jobs:
           java-version: '17'
           cache: gradle
       - uses: android-actions/setup-android@v3
-      - run: yes | "$ANDROID_HOME"/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+      # 不跑 `sdkmanager --licenses`：新版 cmdline-tools 会查找废弃的 tools 包并失败；
+      # setup-android 已自动接受许可，缺失组件由 AGP 按需下载
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.9

@@ -108,15 +108,15 @@ Namespace PCLNeo
                     .UseShellExecute = False, .RedirectStandardError = True,
                     .RedirectStandardOutput = True, .CreateNoWindow = True}
                 Using proc = Process.Start(psi)
-                    Dim out = proc.StandardError.ReadToEnd() & proc.StandardOutput.ReadToEnd()
+                    Dim versionOutput = proc.StandardError.ReadToEnd() & proc.StandardOutput.ReadToEnd()
                     proc.WaitForExit(5000)
-                    Dim m = Regex.Match(out, """(?<v>[0-9]+(\.[0-9]+)*)""")
+                    Dim m = Regex.Match(versionOutput, """(?<v>[0-9]+(\.[0-9]+)*)""")
                     If Not m.Success Then Return Nothing
                     Dim ver = m.Groups("v").Value
                     Dim feature = ParseFeature(ver)
                     Return New JavaInfo With {
                         .Path = JavaExe, .Version = ver, .Feature = feature,
-                        .Is64Bit = out.Contains("64-Bit") OrElse Not out.ToLower().Contains("client vm")
+                        .Is64Bit = versionOutput.Contains("64-Bit") OrElse Not versionOutput.ToLower().Contains("client vm")
                     }
                 End Using
             Catch

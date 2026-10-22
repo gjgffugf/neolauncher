@@ -29,8 +29,11 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Accept SDK licenses
-        run: yes | "$ANDROID_HOME"/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+      # 注意：不要在这里跑 `sdkmanager --licenses`。
+      # 新版 cmdline-tools 执行该命令时会去查找早已废弃的 tools 包，
+      # 报 "Failed to find package 'tools'" 并以退出码 1 失败。
+      # setup-android 已自动接受许可，缺失的 platform / build-tools
+      # 由 AGP 在构建时按需自动下载。
 
       - name: Setup Gradle 8.9
         uses: gradle/actions/setup-gradle@v4

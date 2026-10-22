@@ -1,3 +1,4 @@
+Imports System.IO
 Imports System.Threading.Tasks
 Imports System.Windows
 Imports System.Windows.Controls
@@ -200,7 +201,7 @@ Namespace PCLNeo
 
         Private Sub BtnImportPack_Click() Handles BtnImportPack.Click
             Dim path = TxtPackPath.Text.Trim()
-            If path = "" OrElse Not IO.File.Exists(path) Then
+            If path = "" OrElse Not File.Exists(path) Then
                 MessageBox.Show("请选择整合包文件")
                 Exit Sub
             End If

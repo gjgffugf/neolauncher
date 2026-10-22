@@ -71,6 +71,8 @@ gradle :app:assembleDebug
 
 > Android 的 Release 变体未配置签名，产出的是未签名 APK，需本地 `apksigner` 签名后才能安装。日常直接用 Debug 包即可。
 
+> 工作流里**不要**加 `sdkmanager --licenses` 步骤：新版 cmdline-tools 执行它时会去查找早已废弃的 `tools` 包，报 `Failed to find package 'tools'` 并以退出码 1 让任务失败。许可由 `setup-android` 自动接受，缺失的 platform / build-tools 由 AGP 构建时按需下载。
+
 ## 使用要点
 
 **登录**

@@ -1,3 +1,4 @@
+Imports System.IO
 Imports System.Diagnostics
 Imports System.Threading.Tasks
 Imports System.Windows
@@ -36,14 +37,14 @@ Namespace PCLNeo
         Private Sub BtnOpenDir_Click() Handles BtnOpenDir.Click
             Dim v = CurrentVersion()
             If v = "" Then Exit Sub
-            Process.Start("explorer.exe", IO.Path.Combine(DirVersions, v))
+            Process.Start("explorer.exe", Path.Combine(DirVersions, v))
         End Sub
 
         Private Sub BtnOpenMods_Click() Handles BtnOpenMods.Click
             Dim v = CurrentVersion()
             If v = "" Then Exit Sub
             Dim dir = GetModsDir(v)
-            IO.Directory.CreateDirectory(dir)
+            Directory.CreateDirectory(dir)
             Process.Start("explorer.exe", dir)
         End Sub
 
@@ -91,9 +92,9 @@ Namespace PCLNeo
             While cur("inheritsFrom") IsNot Nothing AndAlso guard < 8
                 guard += 1
                 Dim p = cur("inheritsFrom").ToString()
-                Dim f = IO.Path.Combine(DirVersions, p, p & ".json")
-                If Not IO.File.Exists(f) Then Exit While
-                cur = Newtonsoft.Json.Linq.JObject.Parse(IO.File.ReadAllText(f))
+                Dim f = Path.Combine(DirVersions, p, p & ".json")
+                If Not File.Exists(f) Then Exit While
+                cur = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(f))
             End While
             Return If(cur("id")?.ToString(), VersionName)
         End Function
